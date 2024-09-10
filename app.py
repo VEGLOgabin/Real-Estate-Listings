@@ -28,7 +28,7 @@ def scrape_page(page, page_number):
    
     
     time.sleep(2)
-    data = [page_number, links]
+    data = [links, page]
     return data
 
 
@@ -46,8 +46,12 @@ def scrape_all_pages():
         while True:
             
             print(page_number)
-            current_data = scrape_page(page, page_number)
-            data.append(current_data)
+            current_data_and_page = scrape_page(page, page_number)
+            current_data = current_data_and_page[0]
+            page = current_data_and_page[1]
+            # data.append(current_data)
+            for item in current_data:
+                data.append([page_number, item]) 
             
             # Check if there is a next page
             next_page_button = page.locator("li.WDDJJ")
@@ -66,11 +70,20 @@ def scrape_all_pages():
         browser.close()
     return data
         
+        
+def save_to_csv(data, filename="scraped_data.csv"):
+    # Create a DataFrame from the data
+    df = pd.DataFrame(data, columns=["Page Number", "Product Links"])
+    
+    # Save the DataFrame to a CSV file
+    df.to_csv(filename, index=False)
 
 # Run the scraping process
 if __name__ == "__main__":
     try:
         data = scrape_all_pages()
-        print(data)
+        # HEADERS = ["Page NUMBER", "PRODUCT LINKS"]
+        save_to_csv(data, filename="zillow_scraped_data.csv")  # Save data to CSV
+        # print(data)
     except KeyboardInterrupt:
         print("Process interrupted")
